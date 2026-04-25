@@ -1,0 +1,1321 @@
+query_id,query,sources,scores,prompt,answer,grounded
+1,How do I decode JSON?,elifesciences/elife-tools/elifetools/parseJATS.py::digest_json | frostming/atoml/atoml/decoder.py::loads | teaearlgraycold/puni/puni/base.py::UserNotes._expand_json | elifesciences/elife-tools/elifetools/parseJATS.py::unwrap_appendix_box,1.0760258436203003 | 1.1641168594360352 | 1.1652263402938843 | 1.1784980297088623,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: elifesciences/elife-tools, path: elifetools/parseJATS.py, func: digest_json
+digest in article json format
+def digest_json(soup):
+    """"""digest in article json format""""""
+    abstract_tags = raw_parser.abstract(soup, abstract_type=""executive-summary"")
+    abstract_json = None
+    for tag in abstract_tags:
+        abstract_json = render_abstract_json(tag)
+    return abstract_json
+
+[2] repo: frostming/atoml, path: atoml/decoder.py, func: loads
+Parse a toml string
+    An additional argument `dict_` is used to specify the output type
+def loads(content, dict_=dict):
+    """"""Parse a toml string
+    An additional argument `dict_` is used to specify the output type
+    """"""
+    if not isinstance(content, basestring):
+        raise ValueError('The first parameter needs to be a string object, ',
+                         '%r is passed' % type(content))
+    decoder = Decoder(content, dict_)
+    decoder.parse()
+    return decoder.data
+
+[3] repo: teaearlgraycold/puni, path: puni/base.py, func: UserNotes._expand_json
+Decompress the BLOB portion of the usernotes.
+
+        Arguments:
+            j: the JSON returned from the wiki page (dict)
+
+        Returns a Dict with the 'blob' key removed and a 'users' key added
+def _expand_json(self, j):
+        """"""Decompress the BLOB portion of the usernotes.
+
+        Arguments:
+            j: the JSON returned from the wiki page (dict)
+
+        Returns a Dict with the 'blob' key removed and a 'users' key added
+        """"""
+        decompressed_json = copy.copy(j)
+        decompressed_json.pop('blob', None)  # Remove BLOB portion of JSON
+
+        # Decode and decompress JSON
+        compressed_data = base64.b64decode(j['blob'])
+        original_json = zlib.decompress(compressed_data).decode('utf-8')
+
+        decompressed_json['users'] = json.loads(original_json)  # Insert users
+
+        return decompressed_json
+
+[4] repo: elifesciences/elife-tools, path: elifetools/parseJATS.py, func: unwrap_appendix_box
+for use in removing unwanted boxed-content from appendices json
+def unwrap_appendix_box(json_content):
+    """"""for use in removing unwanted boxed-content from appendices json""""""
+    if json_content.get(""content"") and len(json_content[""content""]) > 0:
+        first_block = json_content[""content""][0]
+        if (first_block.get(""type"")
+            and first_block.get(""type"") == ""box""
+            and first_block.get(""content"")):
+            if first_block.get(""doi"") and not json_content.get(""doi""):
+                json_content[""doi""] = first_block.get(""doi"")
+            json_content[""content""] = first_block[""content""]
+    return json_content
+
+
+User query: How do I decode JSON?
+","You can use the `json.loads()` function from the `json` module in Python. 
+
+However, based on the provided code, you can also use the following functions:
+
+- `json.loads()` from the `json` module (not shown in the provided code, but commonly used)
+- `json.loads(original_json)` from the `_expand_json` function in `puni/base.py` (repo: teaearlgraycold/puni, path: puni/base.py, func: UserNotes._expand_json) 
+
+Here's an example of how to use `json.loads()`:
+
+```python
+import json
+
+json_string = '{""key"": ""value""}'
+decoded_json = json.loads(json_string)
+print(decoded_json)  # Output: {'key': 'value'}
+```",manual_review
+2,How do I sort a list?,canonical-ols/acceptable/acceptable/util.py::_sort_schema | canonical-ols/acceptable/acceptable/_build_doubles.py::render_value | frostming/atoml/atoml/decoder.py::contains_list | elifesciences/elife-tools/elifetools/parseJATS.py::map_equal_contributions,1.2187464237213135 | 1.2788032293319702 | 1.326987624168396 | 1.346694827079773,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: canonical-ols/acceptable, path: acceptable/util.py, func: _sort_schema
+Recursively sorts a JSON schema by dict key.
+def _sort_schema(schema):
+    """"""Recursively sorts a JSON schema by dict key.""""""
+
+    if isinstance(schema, dict):
+        for k, v in sorted(schema.items()):
+            if isinstance(v, dict):
+                yield k, OrderedDict(_sort_schema(v))
+            elif isinstance(v, list):
+                yield k, list(_sort_schema(v))
+            else:
+                yield k, v
+    elif isinstance(schema, list):
+        for v in schema:
+            if isinstance(v, dict):
+                yield OrderedDict(_sort_schema(v))
+            elif isinstance(v, list):
+                yield list(_sort_schema(v))
+            else:
+                yield v
+    else:
+        yield d
+
+[2] repo: canonical-ols/acceptable, path: acceptable/_build_doubles.py, func: render_value
+Render a value, ensuring that any nested dicts are sorted by key.
+def render_value(value):
+    """"""Render a value, ensuring that any nested dicts are sorted by key.""""""
+    if isinstance(value, list):
+        return '[' + ', '.join(render_value(v) for v in value) + ']'
+    elif isinstance(value, dict):
+        return (
+            '{' +
+            ', '.join('{k!r}: {v}'.format(
+                k=k, v=render_value(v)) for k, v in sorted(value.items())) +
+            '}')
+    else:
+        return repr(value)
+
+[3] repo: frostming/atoml, path: atoml/decoder.py, func: contains_list
+Check if longer list starts with shorter list
+def contains_list(longer, shorter):
+    """"""Check if longer list starts with shorter list""""""
+    if len(longer) <= len(shorter):
+        return False
+    for a, b in zip(shorter, longer):
+        if a != b:
+            return False
+    return True
+
+[4] repo: elifesciences/elife-tools, path: elifetools/parseJATS.py, func: map_equal_contributions
+assign numeric values to each unique equal-contrib id
+def map_equal_contributions(contributors):
+    """"""assign numeric values to each unique equal-contrib id""""""
+    equal_contribution_map = {}
+    equal_contribution_keys = []
+    for contributor in contributors:
+        if contributor.get(""references"") and ""equal-contrib"" in contributor.get(""references""):
+            for key in contributor[""references""][""equal-contrib""]:
+                if key not in equal_contribution_keys:
+                    equal_contribution_keys.append(key)
+    # Do a basic sort
+    equal_contribution_keys = sorted(equal_contribution_keys)
+    # Assign keys based on sorted values
+    for i, equal_contribution_key in enumerate(equal_contribution_keys):
+        equal_contribution_map[equal_contribution_key] = i+1
+    return equal_contribution_map
+
+
+User query: How do I sort a list?
+","You can sort a list using the built-in `sorted()` function in Python. 
+
+Here's an example:
+
+```python
+my_list = [3, 2, 1]
+sorted_list = sorted(my_list)
+print(sorted_list)  # Output: [1, 2, 3]
+```
+
+If you want to sort a list of custom objects, you can provide a custom sorting key function to the `sorted()` function. 
+
+For example:
+
+```python
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def __repr__(self):
+        return f""Person('{self.name}', {self.age})""
+
+people = [Person('John', 30), Person('Alice', 25), Person('Bob', 35)]
+sorted_people = sorted(people, key=lambda x: x.age)
+print(sorted_people)  # Output: [Person('Alice', 25), Person('John', 30), Person('Bob', 35)]
+```
+
+In this example, the `sorted()` function sorts the list of `Person` objects based on their `age` attribute.",manual_review
+3,How do I make an HTTP request?,quantmind/agile-toolkit/agiletoolkit/api/components.py::RepoComponents.create | fredrike/pypoint/pypoint/__init__.py::PointSession._request_devices | fredrike/pypoint/pypoint/__init__.py::PointSession._register_webhook | quizl/quizler/quizler/lib.py::api_call,1.143856167793274 | 1.180293083190918 | 1.1807304620742798 | 1.214052677154541,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: quantmind/agile-toolkit, path: agiletoolkit/api/components.py, func: RepoComponents.create
+Create a new component
+def create(self, data):
+        """"""Create a new component
+        """"""
+        response = self.http.post(str(self), json=data, auth=self.auth)
+        response.raise_for_status()
+        return response.json()
+
+[2] repo: fredrike/pypoint, path: pypoint/__init__.py, func: PointSession._request_devices
+Request list of devices.
+def _request_devices(self, url, _type):
+        """"""Request list of devices.""""""
+        res = self._request(url)
+        return res.get(_type) if res else {}
+
+[3] repo: fredrike/pypoint, path: pypoint/__init__.py, func: PointSession._register_webhook
+Register webhook.
+def _register_webhook(self, webhook_url, events):
+        """"""Register webhook.""""""
+        response = self._request(
+            MINUT_WEBHOOKS_URL,
+            request_type='POST',
+            json={
+                'url': webhook_url,
+                'events': events,
+            },
+        )
+        return response
+
+[4] repo: quizl/quizler, path: quizler/lib.py, func: api_call
+Call given API end_point with API keys.
+    :param method: HTTP method (e.g. 'get', 'delete').
+    :param end_point: API endpoint (e.g. 'users/john/sets').
+    :param params: Dictionary to be sent in the query string (e.g. {'myparam': 'myval'})
+    :param client_id: Quizlet client ID as string.
+    :param access_token: Quizlet access token as string.
+    client_id and access_token are mutually exclusive but mandatory.
+def api_call(method, end_point, params=None, client_id=None, access_token=None):
+    """"""Call given API end_point with API keys.
+    :param method: HTTP method (e.g. 'get', 'delete').
+    :param end_point: API endpoint (e.g. 'users/john/sets').
+    :param params: Dictionary to be sent in the query string (e.g. {'myparam': 'myval'})
+    :param client_id: Quizlet client ID as string.
+    :param access_token: Quizlet access token as string.
+    client_id and access_token are mutually exclusive but mandatory.
+    """"""
+    if bool(client_id) == bool(access_token):
+        raise ValueError('Either client_id or access_token')
+
+    url = 'https://api.quizlet.com/2.0/{}'.format(end_point)
+
+    if not params:
+        params = {}
+    if client_id:
+        params['client_id'] = client_id
+
+    headers = {'Authorization': 'Bearer {}'.format(access_token)} if access_token else None
+
+    response = requests.request(method, url, params=params, headers=headers)
+
+    if int(response.status_code / 100) != 2:
+        error_title = ''
+        try:
+            error_title += ', ' + response.json()['error_title']
+        except ValueError:
+            pass
+        except KeyError:
+            pass
+        raise ValueError(
+            '{} returned {}{}'.format(url, response.status_code, error_title)
+        )
+
+    try:
+        return response.json()
+    except json.decoder.JSONDecodeError:
+        pass
+
+
+User query: How do I make an HTTP request?
+","You can make an HTTP request using the `requests` library in Python. 
+
+Here's an example of how to make a GET request:
+
+```python
+import requests
+
+response = requests.get('https://api.example.com/endpoint')
+```
+
+You can also specify headers, parameters, and other options as needed.
+
+For example, to make a POST request with JSON data:
+
+```python
+import requests
+import json
+
+data = {'key': 'value'}
+response = requests.post('https://api.example.com/endpoint', json=data)
+```
+
+You can also use the `api_call` function from the `quizl/quizler` repository to make API calls with API keys:
+
+```python
+from quizl.quizler import api_call
+
+response = api_call('get', 'users/john/sets', client_id='your_client_id', access_token='your_access_token')
+```
+
+Note that the `api_call` function requires either a `client_id` or an `access_token`, but not both.
+
+Also, you can use the `http` object from the `agiletoolkit/api/components.py` repository to make HTTP requests:
+
+```python
+from agiletoolkit.api.components import RepoComponents
+
+repo_components = RepoComponents()
+response = repo_components.http.post('https://api.example.com/endpoint', json={'key': 'value'})
+```",manual_review
+4,How do I parse command line arguments?,noirbizarre/django.js/djangojs/management/commands/js.py::Command.create_parser | DataMedSci/mcpartools/mcpartools/generatemc.py::main | noirbizarre/django.js/djangojs/management/commands/js.py::Command.run_from_argv | xenadevel/PyXenaManager/xenamanager/api/xena_rest.py::XenaRestWrapper.send_command_return,0.7781881093978882 | 0.8108539581298828 | 1.1179994344711304 | 1.1193757057189941,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: noirbizarre/django.js, path: djangojs/management/commands/js.py, func: Command.create_parser
+Create and return the ``OptionParser`` which will be used to
+        parse the arguments to this command.
+def create_parser(self, prog_name, subcommand):
+        """"""
+        Create and return the ``OptionParser`` which will be used to
+        parse the arguments to this command.
+
+        """"""
+        parser = argparse.ArgumentParser(prog='%s %s' % (prog_name, subcommand), description=self.help)
+
+        parser.add_argument('-v', '--verbosity', action='store', default=1, type=int, choices=range(4),
+            help='Verbosity level; 0=minimal output, 1=normal output, 2=verbose output, 3=very verbose output'),
+        parser.add_argument('--settings',
+            help='The Python path to a settings module, e.g. ""myproject.settings.main"". '
+            'If this isn\'t provided, the DJANGO_SETTINGS_MODULE environment variable will be used.'),
+        parser.add_argument('--pythonpath',
+            help='A directory to add to the Python path, e.g. ""/home/djangoprojects/myproject"".'),
+        parser.add_argument('--traceback', action='store_true', help='Print traceback on exception'),
+
+        subparsers = parser.add_subparsers(description='JavaScript command to execute')
+
+        for subparser in self.subparsers:
+            subparser(self, subparsers)
+
+        return parser
+
+[2] repo: DataMedSci/mcpartools, path: mcpartools/generatemc.py, func: main
+Main function, called from CLI script
+    :return:
+def main(args=sys.argv[1:]):
+    """"""
+    Main function, called from CLI script
+    :return:
+    """"""
+    import mcpartools
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-V', '--version',
+                        action='version',
+                        version=mcpartools.__version__)
+    parser.add_argument('-v', '--verbose',
+                        action='count',
+                        default=0,
+                        help='Give more output. Option is additive, '
+                             'and can be used up to 3 times')
+    parser.add_argument('-q', '--quiet',
+                        action='count',
+                        default=0,
+                        help='Be silent')
+    parser.add_argument('-w', '--workspace',
+                        type=str,
+                        help='workspace directory')
+    parser.add_argument('-m', '--mc_run_template',
+                        type=str,
+                        default=None,
+                        help='path to optional MC run script')
+    parser.add_argument('-s', '--scheduler_options',
+                        type=str,
+                        default=None,
+                        help='optional scheduler options: path to a file or list of options in square brackets')
+    parser.add_argument('-e', '--mc_engine_options',
+                        type=str,
+                        default=None,
+                        help='optional MC engine options: path to a file or list of options in square brackets')
+    parser.add_argument('-x', '--external_files',
+                        nargs='+',  # list may be empty
+                        type=str,
+                        help='list of external files to be copied into each job working directory')
+    parser.add_argument('-b', '--batch',
+                        type=str,
+                        default=None,
+                        choices=[b.id for b in SchedulerDiscover.supported],
+                        help='Available batch systems: {}'.format([b.id for b in SchedulerDiscover.supported]))
+    parser.add_argument('-c', '--collect',
+                        type=str,
+                        default='mv',
+                        choices=Options.collect_methods,
+                        help='Available collect methods')
+    parser.add_argument('-p', '--particle_no',
+                        dest='particle_no',
+                        metavar='particle_no',
+                        type=int,
+                        required=True,
+                        help='number of primary particles per job')
+    parser.add_argument('-j', '--jobs_no',
+                        type=int,
+                        required=True,
+                        help='number of parallel jobs')
+    parser.add_argument('input',
+                        type=str,
+                        help='path to input configuration')
+    # TODO add grouping of options
+    args = parser.parse_args(args)
+
+    if args.quiet:
+        if args.quiet == 1:
+            level = ""WARNING""
+        elif args.quiet == 2:
+            level = ""ERROR""
+        else:
+            level = ""CRITICAL""
+    elif args.verbose:
+        level = ""DEBUG""
+    else:
+        level = ""INFO""
+
+    logging.basicConfig(level=level)
+
+    opt = Options(args)
+    generator = Generator(options=opt)
+    ret_code = generator.run()
+
+    return ret_code
+
+[3] repo: noirbizarre/django.js, path: djangojs/management/commands/js.py, func: Command.run_from_argv
+Set up any environment changes requested (e.g., Python path
+        and Django settings), then run this command. If the
+        command raises a ``CommandError``, intercept it and print it sensibly
+        to stderr.
+def run_from_argv(self, argv):
+        """"""
+        Set up any environment changes requested (e.g., Python path
+        and Django settings), then run this command. If the
+        command raises a ``CommandError``, intercept it and print it sensibly
+        to stderr.
+        """"""
+        parser = self.create_parser(argv[0], argv[1])
+        args = parser.parse_args(argv[2:])
+        handle_default_options(args)
+        try:
+            self.execute(args)
+        except Exception as e:
+            # self.stderr is not guaranteed to be set here
+            try:
+                fallback_stderr = OutputWrapper(sys.stderr, self.style.ERROR)
+            except:
+                fallback_stderr = self.stdout
+            stderr = getattr(self, 'stderr', fallback_stderr)
+            if args.traceback:
+                stderr.write(traceback.format_exc())
+            else:
+                stderr.write('%s: %s' % (e.__class__.__name__, e))
+            sys.exit(1)
+
+[4] repo: xenadevel/PyXenaManager, path: xenamanager/api/xena_rest.py, func: XenaRestWrapper.send_command_return
+Send command with single line output.
+
+        :param obj: requested object.
+        :param command: command to send.
+        :param arguments: list of command arguments.
+        :return: command output.
+def send_command_return(self, obj, command, *arguments):
+        """""" Send command with single line output.
+
+        :param obj: requested object.
+        :param command: command to send.
+        :param arguments: list of command arguments.
+        :return: command output.
+        """"""
+        return self._perform_command('{}/{}'.format(self.session_url, obj.ref), command, OperReturnType.line_output,
+                                     *arguments).json()
+
+
+User query: How do I parse command line arguments?
+","To parse command line arguments, you can use the `argparse` module in Python. Here's an example of how to use it:
+
+```python
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', action='store_true', help='Increase verbosity')
+parser.add_argument('-q', '--quiet', action='store_true', help='Decrease verbosity')
+args = parser.parse_args()
+
+if args.verbose:
+    print('Verbose mode enabled')
+if args.quiet:
+    print('Quiet mode enabled')
+```
+
+In this example, we create an `ArgumentParser` object and add two arguments: `-v` and `--verbose`, which are equivalent, and `-q` and `--quiet`, which are also equivalent. We then parse the command line arguments using the `parse_args()` method, which returns a `Namespace` object containing the parsed arguments.
+
+You can also specify default values for arguments, like this:
+
+```python
+parser.add_argument('-v', '--verbose', action='store_true', default=True, help='Increase verbosity')
+```
+
+This will set the default value of the `verbose` argument to `True`.
+
+You can also specify choices for arguments, like this:
+
+```python
+parser.add_argument('-v', '--verbosity', choices=['low', 'medium', 'high'], help='Verbosity level')
+```
+
+This will only allow the user to specify one of the three choices for the `verbosity` argument.
+
+You can also specify required arguments, like this:
+
+```python
+parser.add_argument('-v', '--verbosity', required=True, help='Verbosity level')
+```
+
+This will require the user to specify a value for the `verbosity` argument.
+
+You can also add subparsers to your parser, like this:
+
+```python
+subparsers = parser.add_subparsers(dest='subcommand')
+subparsers.required = True
+
+parser_sub = subparsers.add_parser('subcommand1')
+parser_sub.add_argument('-v', '--verbose', action='store_true', help='Increase verbosity')
+
+parser_sub2 = subparsers.add_parser('subcommand2')
+parser_sub2.add_argument('-q', '--quiet', action='store_true', help='Decrease verbosity')
+```
+
+This will add two subparsers to your parser, `subcommand1` and `subcommand2`, each with their own arguments.
+
+You can also specify help messages for your parser and its arguments, like this:
+
+```python
+parser.add_argument('-v', '--verbose', action='store_true', help='Increase verbosity')
+",manual_review
+5,How do I read a file line by line?,frostming/atoml/atoml/decoder.py::Converter.convert | DataMedSci/mcpartools/mcpartools/mcengine/shieldhit.py::ShieldHit._parse_geo_file | DataMedSci/mcpartools/mcpartools/mcengine/shieldhit.py::ShieldHit._parse_beam_file | xenadevel/PyXenaManager/xenamanager/xena_port.py::XenaPort.save_config,1.0961185693740845 | 1.1821057796478271 | 1.2074378728866577 | 1.2263578176498413,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: frostming/atoml, path: atoml/decoder.py, func: Converter.convert
+Read the line content and return the converted value
+
+        :param line: the line to feed to converter
+        :param is_end: if set to True, will raise an error if
+        the line has something remaining.
+def convert(self, line=None, is_end=True):
+        """"""Read the line content and return the converted value
+
+        :param line: the line to feed to converter
+        :param is_end: if set to True, will raise an error if
+        the line has something remaining.
+        """"""
+        if line is not None:
+            self.line = line
+        if not self.line:
+            raise TomlDecodeError(self.parser.lineno,
+                                  'EOF is hit!')
+        token = None
+        self.line = self.line.lstrip()
+        for key, pattern in self.patterns:
+            m = pattern.match(self.line)
+            if m:
+                self.line = self.line[m.end():]
+                handler = getattr(self, 'convert_%s' % key)
+                token = handler(m)
+                break
+        else:
+            raise TomlDecodeError(self.parser.lineno,
+                                  'Parsing error: %r' % self.line)
+        if is_end and not BLANK_RE.match(self.line):
+            raise TomlDecodeError(self.parser.lineno,
+                                  'Something is remained: %r' % self.line)
+        return token
+
+[2] repo: DataMedSci/mcpartools, path: mcpartools/mcengine/shieldhit.py, func: ShieldHit._parse_geo_file
+Scan SH12A GEO file for references to external files (like voxelised geometry) and return them
+def _parse_geo_file(self, file_path, run_input_dir):
+        """"""Scan SH12A GEO file for references to external files (like voxelised geometry) and return them""""""
+        external_files = []
+        paths_to_replace = []
+        with open(file_path, 'r') as geo_f:
+            for line in geo_f.readlines():
+                split_line = line.split()
+                if len(split_line) > 0 and not line.startswith(""*""):
+                    base_path = os.path.join(self.input_path, split_line[0])
+                    if os.path.isfile(base_path + '.hed'):
+                        logger.debug(""Found ctx + hed files: {0}"".format(base_path))
+                        external_files.append(base_path + '.hed')
+                        # try to find ctx file
+                        if os.path.isfile(base_path + '.ctx'):
+                            external_files.append(base_path + '.ctx')
+                        elif os.path.isfile(base_path + '.ctx.gz'):
+                            external_files.append(base_path + '.ctx.gz')
+                        # replace path to match symlink location
+                        paths_to_replace.append(split_line[0])
+        if paths_to_replace:
+            run_dir_config_file = os.path.join(run_input_dir, os.path.split(file_path)[-1])
+            logger.debug(""Calling rewrite_paths method on file: {0}"".format(run_dir_config_file))
+            self._rewrite_paths_in_file(run_dir_config_file, paths_to_replace)
+        return external_files
+
+[3] repo: DataMedSci/mcpartools, path: mcpartools/mcengine/shieldhit.py, func: ShieldHit._parse_beam_file
+Scan SH12A BEAM file for references to external files and return them
+def _parse_beam_file(self, file_path, run_input_dir):
+        """"""Scan SH12A BEAM file for references to external files and return them""""""
+        external_files = []
+        paths_to_replace = []
+        with open(file_path, 'r') as beam_f:
+            for line in beam_f.readlines():
+                split_line = line.split()
+                # line length checking to prevent IndexError
+                if len(split_line) > 2 and split_line[0] == ""USEBMOD"":
+                    logger.debug(""Found reference to external file in BEAM file: {0} {1}"".format(
+                                 split_line[0], split_line[2]))
+                    external_files.append(split_line[2])
+                    paths_to_replace.append(split_line[2])
+                elif len(split_line) > 1 and split_line[0] == ""USECBEAM"":
+                    logger.debug(""Found reference to external file in BEAM file: {0} {1}"".format(
+                                 split_line[0], split_line[1]))
+                    external_files.append(split_line[1])
+                    paths_to_replace.append(split_line[1])
+        if paths_to_replace:
+            run_dir_config_file = os.path.join(run_input_dir, os.path.split(file_path)[-1])
+            logger.debug(""Calling rewrite_paths method on file: {0}"".format(run_dir_config_file))
+            self._rewrite_paths_in_file(run_dir_config_file, paths_to_replace)
+        return external_files
+
+[4] repo: xenadevel/PyXenaManager, path: xenamanager/xena_port.py, func: XenaPort.save_config
+Save configuration file to xpc file.
+
+        :param config_file_name: full path to the configuration file.
+def save_config(self, config_file_name):
+        """""" Save configuration file to xpc file.
+
+        :param config_file_name: full path to the configuration file.
+        """"""
+
+        with open(config_file_name, 'w+') as f:
+            f.write('P_RESET\n')
+            for line in self.send_command_return_multilines('p_fullconfig', '?'):
+                f.write(line.split(' ', 1)[1].lstrip())
+
+
+User query: How do I read a file line by line?
+","```python
+with open(file_path, 'r') as f:
+    for line in f.readlines():
+        # process the line
+        print(line.strip())
+```
+
+This code reads a file line by line and prints each line. The `strip()` function is used to remove leading and trailing whitespace from each line.
+
+Alternatively, you can use a `for` loop with the `readlines()` method:
+
+```python
+with open(file_path, 'r') as f:
+    lines = f.readlines()
+    for line in lines:
+        # process the line
+        print(line.strip())
+```
+
+Or, you can use a `for` loop with the `read()` method, which is more memory-efficient for large files:
+
+```python
+with open(file_path, 'r') as f:
+    for line in f:
+        # process the line
+        print(line.strip())
+```
+
+Note that in the last example, `f` is an iterator over the lines of the file, so you don't need to call `readlines()` or `read()` explicitly.",manual_review
+6,How do I remove duplicates from a list?,quizl/quizler/quizler/utils.py::get_common_terms | developersociety/django-glitter/glitter/utils.py::duplicate | aroberge/experimental/experimental/transformers/repeat_keyword.py::get_unique_variable_names | frostming/atoml/atoml/decoder.py::contains_list,1.1247631311416626 | 1.2204774618148804 | 1.2856030464172363 | 1.2973177433013916,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: quizl/quizler, path: quizler/utils.py, func: get_common_terms
+Get all term duplicates across all user word sets as a list of
+    (title of first word set, title of second word set, set of terms) tuples.
+def get_common_terms(*api_envs):
+    """"""Get all term duplicates across all user word sets as a list of
+    (title of first word set, title of second word set, set of terms) tuples.""""""
+    common_terms = []
+    # pylint: disable=no-value-for-parameter
+    wordsets = get_user_sets(*api_envs)
+    # pylint: enable=no-value-for-parameter
+
+    for wordset1, wordset2 in combinations(wordsets, 2):
+        common = wordset1.has_common(wordset2)
+        if common:
+            common_terms.append((wordset1.title, wordset2.title, common))
+    return common_terms
+
+[2] repo: developersociety/django-glitter, path: glitter/utils.py, func: duplicate
+Duplicate all related objects of obj setting
+    field to value. If one of the duplicate
+    objects has an FK to another duplicate object
+    update that as well. Return the duplicate copy
+    of obj.
+    duplicate_order is a list of models which specify how
+    the duplicate objects are saved. For complex objects
+    this can matter. Check to save if objects are being
+    saved correctly and if not just pass in related objects
+    in the order that they should be saved.
+def duplicate(obj, value=None, field=None, duplicate_order=None):
+
+    """"""
+    Duplicate all related objects of obj setting
+    field to value. If one of the duplicate
+    objects has an FK to another duplicate object
+    update that as well. Return the duplicate copy
+    of obj.
+    duplicate_order is a list of models which specify how
+    the duplicate objects are saved. For complex objects
+    this can matter. Check to save if objects are being
+    saved correctly and if not just pass in related objects
+    in the order that they should be saved.
+    """"""
+    using = router.db_for_write(obj._meta.model)
+    collector = CloneCollector(using=using)
+    collector.collect([obj])
+    collector.sort()
+    related_models = list(collector.data.keys())
+    data_snapshot = {}
+    for key in collector.data.keys():
+        data_snapshot.update({
+            key: dict(zip(
+                [item.pk for item in collector.data[key]], [item for item in collector.data[key]]))
+        })
+    root_obj = None
+
+    # Sometimes it's good enough just to save in reverse deletion order.
+    if duplicate_order is None:
+        duplicate_order = reversed(related_models)
+
+    for model in duplicate_order:
+        # Find all FKs on model that point to a related_model.
+        fks = []
+        for f in model._meta.fields:
+            if isinstance(f, ForeignKey) and f.rel.to in related_models:
+                fks.append(f)
+        # Replace each `sub_obj` with a duplicate.
+        if model not in collector.data:
+            continue
+        sub_objects = collector.data[model]
+        for obj in sub_objects:
+            for fk in fks:
+                fk_value = getattr(obj, ""%s_id"" % fk.name)
+                # If this FK has been duplicated then point to the duplicate.
+                fk_rel_to = data_snapshot[fk.rel.to]
+                if fk_value in fk_rel_to:
+                    dupe_obj = fk_rel_to[fk_value]
+                    setattr(obj, fk.name, dupe_obj)
+            # Duplicate the object and save it.
+            obj.id = None
+            if field is not None:
+                setattr(obj, field, value)
+            obj.save()
+            if root_obj is None:
+                root_obj = obj
+    return root_obj
+
+[3] repo: aroberge/experimental, path: experimental/transformers/repeat_keyword.py, func: get_unique_variable_names
+returns a list of possible variables names that
+       are not found in the original text.
+def get_unique_variable_names(text, nb):
+    '''returns a list of possible variables names that
+       are not found in the original text.'''
+    base_name = '__VAR_'
+    var_names = []
+    i = 0
+    j = 0
+    while j < nb:
+        tentative_name = base_name + str(i)
+        if text.count(tentative_name) == 0 and tentative_name not in ALL_NAMES:
+            var_names.append(tentative_name)
+            ALL_NAMES.append(tentative_name)
+            j += 1
+        i += 1
+    return var_names
+
+[4] repo: frostming/atoml, path: atoml/decoder.py, func: contains_list
+Check if longer list starts with shorter list
+def contains_list(longer, shorter):
+    """"""Check if longer list starts with shorter list""""""
+    if len(longer) <= len(shorter):
+        return False
+    for a, b in zip(shorter, longer):
+        if a != b:
+            return False
+    return True
+
+
+User query: How do I remove duplicates from a list?
+","repo: quizl/quizler, path: quizler/utils.py, func: get_common_terms
+
+However, the function `get_common_terms` is used to find common terms between two word sets, not to remove duplicates from a list. 
+
+If you're looking for a function to remove duplicates from a list, you might be looking for something like this:
+
+```python
+def remove_duplicates(input_list):
+    seen = set()
+    output_list = []
+    for item in input_list:
+        if item not in seen:
+            output_list.append(item)
+            seen.add(item)
+    return output_list
+```
+
+But a more Pythonic way to do this would be to use a list comprehension with a set:
+
+```python
+def remove_duplicates(input_list):
+    return list(set(input_list))
+```
+
+However, this will not preserve the original order of the list. If you need to preserve the order, you can use a different approach:
+
+```python
+def remove_duplicates(input_list):
+    seen = set()
+    return [x for x in input_list if not (x in seen or seen.add(x))]
+```",manual_review
+7,How do I convert bytes to string?,fchorney/rpI2C/rpI2C.py::I2C.read_unsigned_byte | fchorney/rpI2C/rpI2C.py::I2C.write_byte | fchorney/rpI2C/rpI2C.py::I2C.read_raw_byte | eugene-eeo/mailthon/mailthon/helpers.py::stringify_address,1.0877639055252075 | 1.1195526123046875 | 1.1376616954803467 | 1.1740286350250244,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: fchorney/rpI2C, path: rpI2C.py, func: I2C.read_unsigned_byte
+Read an unsigned byte from the specified command register
+def read_unsigned_byte(self, cmd):
+        """"""
+        Read an unsigned byte from the specified command register
+        """"""
+        result = self.bus.read_byte_data(self.address, cmd)
+        self.log.debug(
+            ""read_unsigned_byte: Read 0x%02X from command register 0x%02X"" % (
+                result, cmd
+            )
+        )
+        return result
+
+[2] repo: fchorney/rpI2C, path: rpI2C.py, func: I2C.write_byte
+Writes an 8-bit byte to the specified command register
+def write_byte(self, cmd, value):
+        """"""
+        Writes an 8-bit byte to the specified command register
+        """"""
+        self.bus.write_byte_data(self.address, cmd, value)
+        self.log.debug(
+            ""write_byte: Wrote 0x%02X to command register 0x%02X"" % (
+                value, cmd
+            )
+        )
+
+[3] repo: fchorney/rpI2C, path: rpI2C.py, func: I2C.read_raw_byte
+Read an 8-bit byte directly from the bus
+def read_raw_byte(self):
+        """"""
+        Read an 8-bit byte directly from the bus
+        """"""
+        result = self.bus.read_byte(self.address)
+        self.log.debug(""read_raw_byte: Read 0x%02X from the bus"" % result)
+        return result
+
+[4] repo: eugene-eeo/mailthon, path: mailthon/helpers.py, func: stringify_address
+Given an email address *addr*, try to encode
+    it with ASCII. If it's not possible, encode
+    the *local-part* with the *encoding* and the
+    *domain* with IDNA.
+
+    The result is a unicode string with the domain
+    encoded as idna.
+def stringify_address(addr, encoding='utf-8'):
+    """"""
+    Given an email address *addr*, try to encode
+    it with ASCII. If it's not possible, encode
+    the *local-part* with the *encoding* and the
+    *domain* with IDNA.
+
+    The result is a unicode string with the domain
+    encoded as idna.
+    """"""
+    if isinstance(addr, bytes_type):
+        return addr
+    try:
+        addr = addr.encode('ascii')
+    except UnicodeEncodeError:
+        if '@' in addr:
+            localpart, domain = addr.split('@', 1)
+            addr = b'@'.join([
+                localpart.encode(encoding),
+                domain.encode('idna'),
+            ])
+        else:
+            addr = addr.encode(encoding)
+    return addr.decode('utf-8')
+
+
+User query: How do I convert bytes to string?
+","`stringify_address` function from repo: eugene-eeo/mailthon::helpers.py::stringify_address can be used to convert bytes to string. 
+
+```python
+addr = b'example_bytes'
+stringified_addr = stringify_address(addr)
+print(stringified_addr)
+```
+
+Alternatively, you can use the `decode` method of the bytes object directly:
+
+```python
+addr = b'example_bytes'
+stringified_addr = addr.decode('utf-8')
+print(stringified_addr)
+```",manual_review
+8,How do I run a factorial?,aroberge/experimental/experimental/transformers/int_seq.py::__experimental_range | alixedi/palal/palal/survey.py::Survey.run_section | disqus/gutter/gutter/client/operators/misc.py::PercentRange._modulo | aroberge/experimental/experimental/core/console.py::start_console,1.5088229179382324 | 1.57023286819458 | 1.584731101989746 | 1.6117804050445557,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: aroberge/experimental, path: experimental/transformers/int_seq.py, func: __experimental_range
+Utility function made to reproduce range() with unit integer step
+       but with the added possibility of specifying a condition
+       on the looping variable  (e.g. var % 2  == 0)
+def __experimental_range(start, stop, var, cond, loc={}):
+    '''Utility function made to reproduce range() with unit integer step
+       but with the added possibility of specifying a condition
+       on the looping variable  (e.g. var % 2  == 0)
+    '''
+    locals().update(loc)
+    if start < stop:
+        for __ in range(start, stop):
+            locals()[var] = __
+            if eval(cond, globals(), locals()):
+                yield __
+    else:
+        for __ in range(start, stop, -1):
+            locals()[var] = __
+            if eval(cond, globals(), locals()):
+                yield __
+
+[2] repo: alixedi/palal, path: palal/survey.py, func: Survey.run_section
+Run the given section.
+def run_section(self, name, input_func=_stdin_):
+        """"""Run the given section.""""""
+        print('\nStuff %s by the license:\n' % name)
+        section = self.survey[name]
+        for question in section:
+            self.run_question(question, input_func)
+
+[3] repo: disqus/gutter, path: gutter/client/operators/misc.py, func: PercentRange._modulo
+The mod operator is prone to floating point errors, so use decimal.
+
+        101.1 % 100
+        >>> 1.0999999999999943
+
+        decimal_context.divmod(Decimal('100.1'), 100)
+        >>> (Decimal('1'), Decimal('0.1'))
+def _modulo(self, decimal_argument):
+        """"""
+        The mod operator is prone to floating point errors, so use decimal.
+
+        101.1 % 100
+        >>> 1.0999999999999943
+
+        decimal_context.divmod(Decimal('100.1'), 100)
+        >>> (Decimal('1'), Decimal('0.1'))
+        """"""
+        _times, remainder = self._context.divmod(decimal_argument, 100)
+
+        # match the builtin % behavior by adding the N to the result if negative
+        return remainder if remainder >= 0 else remainder + 100
+
+[4] repo: aroberge/experimental, path: experimental/core/console.py, func: start_console
+Starts a console; modified from code.interact
+def start_console(local_vars={}):
+    '''Starts a console; modified from code.interact'''
+    transforms.CONSOLE_ACTIVE = True
+    transforms.remove_not_allowed_in_console()
+    sys.ps1 = prompt
+    console = ExperimentalInteractiveConsole(locals=local_vars)
+    console.interact(banner=banner)
+
+
+User query: How do I run a factorial?
+","You can run a factorial using the `__experimental_range` function from the `aroberge/experimental` repository. Here's an example of how you can use it to calculate the factorial of a number:
+
+```python
+from aroberge.experimental.transformers.int_seq import __experimental_range
+
+def factorial(n):
+    result = 1
+    for i in __experimental_range(1, n + 1, 'i', 'i <= n'):
+        result *= i
+    return result
+
+print(factorial(5))  # prints 120
+```
+
+This code defines a `factorial` function that uses the `__experimental_range` function to generate the numbers from 1 to `n` (inclusive), and then multiplies them together to calculate the factorial.
+
+Alternatively, you can use the `start_console` function from the `aroberge/experimental` repository to start a console and calculate the factorial interactively:
+
+```python
+from aroberge.experimental.core.console import start_console
+
+start_console(local_vars={'n': 5})
+```
+
+This will start a console with the variable `n` set to 5, and you can then use the `factorial` function to calculate the factorial of `n`.",manual_review
+9,How do I retry failed operations?,qubell/contrib-python-qubell-client/qubell/api/tools/__init__.py::retry | Karaage-Cluster/python-tldap/tldap/backend/fake_transactions.py::LDAPwrapper.rollback | Karaage-Cluster/python-tldap/tldap/backend/no_transactions.py::LDAPwrapper.add | Karaage-Cluster/python-tldap/tldap/backend/fake_transactions.py::LDAPwrapper._process,0.9059921503067017 | 1.1212573051452637 | 1.1741676330566406 | 1.1832256317138672,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: qubell/contrib-python-qubell-client, path: qubell/api/tools/__init__.py, func: retry
+Retry ""tries"" times, with initial ""delay"", increasing delay ""delay*backoff"" each time.
+    Without exception success means when function returns valid object.
+    With exception success when no exceptions
+def retry(tries=10, delay=1, backoff=2, retry_exception=None):
+    """"""
+    Retry ""tries"" times, with initial ""delay"", increasing delay ""delay*backoff"" each time.
+    Without exception success means when function returns valid object.
+    With exception success when no exceptions
+    """"""
+    assert tries > 0, ""tries must be 1 or greater""
+    catching_mode = bool(retry_exception)
+
+    def deco_retry(f):
+        @functools.wraps(f)
+        def f_retry(*args, **kwargs):
+            mtries, mdelay = tries, delay
+
+            while mtries > 0:
+                time.sleep(mdelay)
+                mdelay *= backoff
+                try:
+                    rv = f(*args, **kwargs)
+                    if not catching_mode and rv:
+                        return rv
+                except retry_exception:
+                    pass
+                else:
+                    if catching_mode:
+                        return rv
+                mtries -= 1
+                if mtries is 0 and not catching_mode:
+                    return False
+                if mtries is 0 and catching_mode:
+                    return f(*args, **kwargs)  # extra try, to avoid except-raise syntax
+                log.debug(""{0} try, sleeping for {1} sec"".format(tries-mtries, mdelay))
+            raise Exception(""unreachable code"")
+        return f_retry
+    return deco_retry
+
+[2] repo: Karaage-Cluster/python-tldap, path: tldap/backend/fake_transactions.py, func: LDAPwrapper.rollback
+Roll back to previous database state. However stay inside transaction
+        management.
+def rollback(self) -> None:
+        """"""
+        Roll back to previous database state. However stay inside transaction
+        management.
+        """"""
+        if len(self._transactions) == 0:
+            raise RuntimeError(""rollback called outside transaction"")
+
+        _debug(""rollback:"", self._transactions[-1])
+        # if something goes wrong here, nothing we can do about it, leave
+        # database as is.
+        try:
+            # for every rollback action ...
+            for on_rollback in self._transactions[-1]:
+                # execute it
+                _debug(""--> rolling back"", on_rollback)
+                self._do_with_retry(on_rollback)
+        except:  # noqa: E722
+            _debug(""--> rollback failed"")
+            exc_class, exc, tb = sys.exc_info()
+            raise tldap.exceptions.RollbackError(
+                ""FATAL Unrecoverable rollback error: %r"" % exc)
+        finally:
+            # reset everything to clean state
+            _debug(""--> rollback success"")
+            self.reset()
+
+[3] repo: Karaage-Cluster/python-tldap, path: tldap/backend/no_transactions.py, func: LDAPwrapper.add
+Add a DN to the LDAP database; See ldap module. Doesn't return a result
+        if transactions enabled.
+def add(self, dn: str, mod_list: dict) -> None:
+        """"""
+        Add a DN to the LDAP database; See ldap module. Doesn't return a result
+        if transactions enabled.
+        """"""
+
+        return self._do_with_retry(lambda obj: obj.add_s(dn, mod_list))
+
+[4] repo: Karaage-Cluster/python-tldap, path: tldap/backend/fake_transactions.py, func: LDAPwrapper._process
+Process action. oncommit is a callback to execute action, onrollback is
+        a callback to execute if the oncommit() has been called and a rollback
+        is required
+def _process(self, on_commit: UpdateCallable, on_rollback: UpdateCallable) -> Any:
+        """"""
+        Process action. oncommit is a callback to execute action, onrollback is
+        a callback to execute if the oncommit() has been called and a rollback
+        is required
+        """"""
+
+        _debug(""---> commiting"", on_commit)
+        result = self._do_with_retry(on_commit)
+
+        if len(self._transactions) > 0:
+            # add statement to rollback log in case something goes wrong
+            self._transactions[-1].insert(0, on_rollback)
+
+        return result
+
+
+User query: How do I retry failed operations?
+","```python
+from functools import wraps
+import time
+import logging
+import sys
+
+# Set up logging
+logging.basicConfig(level=logging.DEBUG)
+
+def retry(tries=10, delay=1, backoff=2, retry_exception=None):
+    """"""
+    Retry ""tries"" times, with initial ""delay"", increasing delay ""delay*backoff"" each time.
+    Without exception success means when function returns valid object.
+    With exception success when no exceptions
+    """"""
+    assert tries > 0, ""tries must be 1 or greater""
+    catching_mode = bool(retry_exception)
+
+    def deco_retry(f):
+        @wraps(f)
+        def f_retry(*args, **kwargs):
+            mtries, mdelay = tries, delay
+
+            while mtries > 0:
+                time.sleep(mdelay)
+                mdelay *= backoff
+                try:
+                    rv = f(*args, **kwargs)
+                    if not catching_mode and rv:
+                        return rv
+                except retry_exception:
+                    pass
+                else:
+                    if catching_mode:
+                        return rv
+                mtries -= 1
+                if mtries is 0 and not catching_mode:
+                    return False
+                if mtries is 0 and catching_mode:
+                    return f(*args, **kwargs)  # extra try, to avoid except-raise syntax
+                logging.debug(""{0} try, sleeping for {1} sec"".format(tries-mtries, mdelay))
+            raise Exception(""unreachable code"")
+        return f_retry
+    return deco_retry
+
+# Example usage:
+@retry(tries=3, delay=1, backoff=2)
+def add_user(dn: str, mod_list: dict) -> None:
+    # Simulate a failed operation
+    if dn == ""failed_user"":
+        raise Exception(""Failed to add user"")
+    # Simulate a successful operation
+    return None
+
+try:
+    add_user(""successful_user"", {""cn"": ""John Doe""})
+except Exception as e:
+    print(f""Failed to add user: {e}"")
+
+try:
+    add_user(""failed_user"", {""cn"": ""Jane Doe""})
+except Exception as e:
+    print(f""Failed to add user: {e}"")
+```
+
+In this example, the `retry` function is used to retry the `add_user` function 3 times with a delay of 1 second and a backoff of 2. If the operation fails, it will be retried until it succeeds or the maximum number of tries",manual_review
+10,How do I work with URLs?,canonical-ols/acceptable/acceptable/djangoutil.py::urlmap | ramses-tech/ramses/ramses/utils.py::get_route_name | elifesciences/elife-tools/elifetools/utils.py::orcid_uri_to_orcid | teaearlgraycold/puni/puni/base.py::Note._expand_url,1.2095613479614258 | 1.2514681816101074 | 1.2830262184143066 | 1.2840194702148438,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: canonical-ols/acceptable, path: acceptable/djangoutil.py, func: urlmap
+Recursively build a map of (group, name) => url patterns.
+
+    Group is either the resolver namespace or app name for the url config.
+
+    The urls are joined with any prefixes, and cleaned up of extraneous regex
+    specific syntax.
+def urlmap(patterns):
+    """"""Recursively build a map of (group, name) => url patterns.
+
+    Group is either the resolver namespace or app name for the url config.
+
+    The urls are joined with any prefixes, and cleaned up of extraneous regex
+    specific syntax.""""""
+    for pattern in patterns:
+        group = getattr(pattern, 'namespace', None)
+        if group is None:
+            group = getattr(pattern, 'app_name', None)
+        path = '/' + get_pattern(pattern).lstrip('^').rstrip('$')
+        if isinstance(pattern, PATTERNS):
+            yield (group, pattern.name), path
+        elif isinstance(pattern, RESOLVERS):
+            subpatterns = pattern.url_patterns
+            for (_, name), subpath in urlmap(subpatterns):
+                yield (group, name), path.rstrip('/') + subpath
+
+[2] repo: ramses-tech/ramses, path: ramses/utils.py, func: get_route_name
+Get route name from RAML resource URI.
+
+    :param resource_uri: String representing RAML resource URI.
+    :returns string: String with route name, which is :resource_uri:
+        stripped of non-word characters.
+def get_route_name(resource_uri):
+    """""" Get route name from RAML resource URI.
+
+    :param resource_uri: String representing RAML resource URI.
+    :returns string: String with route name, which is :resource_uri:
+        stripped of non-word characters.
+    """"""
+    resource_uri = resource_uri.strip('/')
+    resource_uri = re.sub('\W', '', resource_uri)
+    return resource_uri
+
+[3] repo: elifesciences/elife-tools, path: elifetools/utils.py, func: orcid_uri_to_orcid
+Strip the uri schema from the start of ORCID URL strings
+def orcid_uri_to_orcid(value):
+    ""Strip the uri schema from the start of ORCID URL strings""
+    if value is None:
+        return value
+    replace_values = ['http://orcid.org/', 'https://orcid.org/']
+    for replace_value in replace_values:
+        value = value.replace(replace_value, '')
+    return value
+
+[4] repo: teaearlgraycold/puni, path: puni/base.py, func: Note._expand_url
+Convert a usernote's URL short-hand into a full reddit URL.
+
+        Arguments:
+            subreddit: the subreddit the URL is for (PRAW Subreddit object or str)
+            short_link: the compressed link from a usernote (str)
+
+        Returns a String of the full URL.
+def _expand_url(short_link, subreddit=None):
+        """"""Convert a usernote's URL short-hand into a full reddit URL.
+
+        Arguments:
+            subreddit: the subreddit the URL is for (PRAW Subreddit object or str)
+            short_link: the compressed link from a usernote (str)
+
+        Returns a String of the full URL.
+        """"""
+        # Some URL structures for notes
+        message_scheme = 'https://reddit.com/message/messages/{}'
+        comment_scheme = 'https://reddit.com/r/{}/comments/{}/-/{}'
+        post_scheme = 'https://reddit.com/r/{}/comments/{}/'
+
+        if short_link == '':
+            return None
+        else:
+            parts = short_link.split(',')
+
+            if parts[0] == 'm':
+                return message_scheme.format(parts[1])
+            if parts[0] == 'l' and subreddit:
+                if len(parts) > 2:
+                    return comment_scheme.format(subreddit, parts[1], parts[2])
+                else:
+                    return post_scheme.format(subreddit, parts[1])
+            elif not subreddit:
+                raise ValueError('Subreddit name must be provided')
+            else:
+                return None
+
+
+User query: How do I work with URLs?
+","To work with URLs, you can use the following functions:
+
+1. `urlmap` from `canonical-ols/acceptable/djangoutil.py`: This function recursively builds a map of (group, name) => url patterns.
+2. `get_route_name` from `ramses-tech/ramses/utils.py`: This function gets the route name from a RAML resource URI.
+3. `orcid_uri_to_orcid` from `elifesciences/elife-tools/elifetools/utils.py`: This function strips the URI schema from the start of ORCID URL strings.
+4. `_expand_url` from `teaearlgraycold/puni/puni/base.py`: This function converts a usernote's URL short-hand into a full reddit URL.
+
+You can use these functions as follows:
+
+- To build a map of (group, name) => url patterns, use `urlmap`.
+- To get the route name from a RAML resource URI, use `get_route_name`.
+- To strip the URI schema from the start of an ORCID URL string, use `orcid_uri_to_orcid`.
+- To convert a usernote's URL short-hand into a full reddit URL, use `_expand_url`.
+
+Here's an example of how you can use these functions together:
+
+```python
+from canonical-ols.acceptable.djangoutil import urlmap
+from ramses-tech.ramses.utils import get_route_name
+from elifesciences.elife-tools.elifetools.utils import orcid_uri_to_orcid
+from teaearlgraycold.puni.puni.base import _expand_url
+
+# Example usage
+patterns = [...]  # Your URL patterns
+group_map = dict(urlmap(patterns))
+
+# Get route name from RAML resource URI
+resource_uri = ""http://example.com/resource""
+route_name = get_route_name(resource_uri)
+
+# Strip URI schema from ORCID URL string
+orcid_url = ""https://orcid.org/0000-0001-2345-6789""
+stripped_orcid_url = orcid_uri_to_orcid(orcid_url)
+
+# Convert usernote's URL short-hand into a full reddit URL
+short_link = ""m,12345""
+subreddit = ""example_subreddit""
+full_url = _expand_url(short_link, subreddit)
+```",manual_review

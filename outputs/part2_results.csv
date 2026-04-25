@@ -1,0 +1,1074 @@
+query_id,query,sources,scores,prompt,answer,grounded
+1,How do I validate an email address?,custom/data/custom_functions/validation.py::validation | custom/data/custom_functions/validation.py::validation | alixedi/palal/palal/survey.py::Survey.is_answer_valid | beregond/jsonmodels/jsonmodels/models.py::Base.validate,0.7811124324798584 | 0.7811124324798584 | 1.2572475671768188 | 1.2817620038986206,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: custom, path: data/custom_functions/validation.py, func: validation
+import re
+
+def is_valid_email(email):
+    return bool(re.match(r'^[^@]+@[^@]+\.[^@]+$', email))
+
+[2] repo: custom, path: data/custom_functions/validation.py, func: validation
+import re
+
+def is_valid_email(email):
+    return bool(re.match(r'^[^@]+@[^@]+\.[^@]+$', email))
+
+[3] repo: alixedi/palal, path: palal/survey.py, func: Survey.is_answer_valid
+Validate user's answer against available choices.
+def is_answer_valid(self, ans):
+        """"""Validate user's answer against available choices.""""""
+        return ans in [str(i+1) for i in range(len(self.choices))]
+
+[4] repo: beregond/jsonmodels, path: jsonmodels/models.py, func: Base.validate
+Explicitly validate all the fields.
+def validate(self):
+        """"""Explicitly validate all the fields.""""""
+        for name, field in self:
+            try:
+                field.validate_for_object(self)
+            except ValidationError as error:
+                raise ValidationError(
+                    ""Error for field '{name}'."".format(name=name),
+                    error,
+                )
+
+
+User query: How do I validate an email address?
+","```python
+import re
+
+def is_valid_email(email):
+    return bool(re.match(r'^[^@]+@[^@]+\.[^@]+$', email))
+```
+
+Source: custom::data/custom_functions/validation.py::validation",manual_review
+2,How do I calculate moving average?,custom/data/custom_functions/math_utils.py::math_utils | custom/data/custom_functions/math_utils.py::math_utils | astroduff/commah/commah/commah.py::MAH | astroduff/commah/commah/commah.py::acc_rate,0.6056630611419678 | 0.6056630611419678 | 1.4293594360351562 | 1.4631271362304688,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: custom, path: data/custom_functions/math_utils.py, func: math_utils
+def moving_average(nums, window):
+    return [sum(nums[i:i+window])/window for i in range(len(nums)-window+1)]
+
+[2] repo: custom, path: data/custom_functions/math_utils.py, func: math_utils
+def moving_average(nums, window):
+    return [sum(nums[i:i+window])/window for i in range(len(nums)-window+1)]
+
+[3] repo: astroduff/commah, path: commah/commah.py, func: MAH
+Calculate mass accretion history by looping function acc_rate
+        over redshift steps 'z' for halo of mass 'Mi' at redshift 'zi'
+
+    Parameters
+    ----------
+    z : float / numpy array
+        Redshift to output MAH over. Note zi<z always
+    zi : float
+        Redshift
+    Mi : float
+        Halo mass at redshift 'zi'
+    cosmo : dict
+        Dictionary of cosmological parameters, similar in format to:
+        {'N_nu': 0,'Y_He': 0.24, 'h': 0.702, 'n': 0.963,'omega_M_0': 0.275,
+         'omega_b_0': 0.0458,'omega_lambda_0': 0.725,'omega_n_0': 0.0,
+         'sigma_8': 0.816, 't_0': 13.76, 'tau': 0.088,'z_reion': 10.6}
+
+    Returns
+    -------
+    (dMdt, Mz) : float / numpy arrays of equivalent size to 'z'
+        Accretion rate [Msol/yr], halo mass [Msol] at redshift 'z'
+def MAH(z, zi, Mi, **cosmo):
+    """""" Calculate mass accretion history by looping function acc_rate
+        over redshift steps 'z' for halo of mass 'Mi' at redshift 'zi'
+
+    Parameters
+    ----------
+    z : float / numpy array
+        Redshift to output MAH over. Note zi<z always
+    zi : float
+        Redshift
+    Mi : float
+        Halo mass at redshift 'zi'
+    cosmo : dict
+        Dictionary of cosmological parameters, similar in format to:
+        {'N_nu': 0,'Y_He': 0.24, 'h': 0.702, 'n': 0.963,'omega_M_0': 0.275,
+         'omega_b_0': 0.0458,'omega_lambda_0': 0.725,'omega_n_0': 0.0,
+         'sigma_8': 0.816, 't_0': 13.76, 'tau': 0.088,'z_reion': 10.6}
+
+    Returns
+    -------
+    (dMdt, Mz) : float / numpy arrays of equivalent size to 'z'
+        Accretion rate [Msol/yr], halo mass [Msol] at redshift 'z'
+
+    """"""
+
+    # Ensure that z is a 1D NumPy array
+    z = np.array(z, ndmin=1, dtype=float)
+
+    # Create a full array
+    dMdt_array = np.empty_like(z)
+    Mz_array = np.empty_like(z)
+
+    for i_ind, zval in enumerate(z):
+        # Solve the accretion rate and halo mass at each redshift step
+        dMdt, Mz = acc_rate(zval, zi, Mi, **cosmo)
+
+        dMdt_array[i_ind] = dMdt
+        Mz_array[i_ind] = Mz
+
+    return(dMdt_array, Mz_array)
+
+[4] repo: astroduff/commah, path: commah/commah.py, func: acc_rate
+Calculate accretion rate and mass history of a halo at any
+        redshift 'z' with mass 'Mi' at a lower redshift 'z'
+
+    Parameters
+    ----------
+    z : float
+        Redshift to solve acc_rate / mass history. Note zi<z
+    zi : float
+        Redshift
+    Mi : float
+        Halo mass at redshift 'zi'
+    cosmo : dict
+        Dictionary of cosmological parameters, similar in format to:
+        {'N_nu': 0,'Y_He': 0.24, 'h': 0.702, 'n': 0.963,'omega_M_0': 0.275,
+         'omega_b_0': 0.0458,'omega_lambda_0': 0.725,'omega_n_0': 0.0,
+         'sigma_8': 0.816, 't_0': 13.76, 'tau': 0.088,'z_reion': 10.6}
+
+    Returns
+    -------
+    (dMdt, Mz) : float
+        Accretion rate [Msol/yr], halo mass [Msol] at redshift 'z'
+def acc_rate(z, zi, Mi, **cosmo):
+    """""" Calculate accretion rate and mass history of a halo at any
+        redshift 'z' with mass 'Mi' at a lower redshift 'z'
+
+    Parameters
+    ----------
+    z : float
+        Redshift to solve acc_rate / mass history. Note zi<z
+    zi : float
+        Redshift
+    Mi : float
+        Halo mass at redshift 'zi'
+    cosmo : dict
+        Dictionary of cosmological parameters, similar in format to:
+        {'N_nu': 0,'Y_He': 0.24, 'h': 0.702, 'n': 0.963,'omega_M_0': 0.275,
+         'omega_b_0': 0.0458,'omega_lambda_0': 0.725,'omega_n_0': 0.0,
+         'sigma_8': 0.816, 't_0': 13.76, 'tau': 0.088,'z_reion': 10.6}
+
+    Returns
+    -------
+    (dMdt, Mz) : float
+        Accretion rate [Msol/yr], halo mass [Msol] at redshift 'z'
+
+    """"""
+    # Find parameters a_tilde and b_tilde for initial redshift
+    # use Eqn 9 and 10 of Correa et al. (2015c)
+    a_tilde, b_tilde = calc_ab(zi, Mi, **cosmo)
+
+    # Halo mass at z, in Msol
+    # use Eqn 8 in Correa et al. (2015c)
+    Mz = Mi * ((1 + z - zi)**a_tilde) * (np.exp(b_tilde * (z - zi)))
+
+    # Accretion rate at z, Msol yr^-1
+    # use Eqn 11 from Correa et al. (2015c)
+    dMdt = 71.6 * (Mz/1e12) * (cosmo['h']/0.7) *\
+        (-a_tilde / (1 + z - zi) - b_tilde) * (1 + z) *\
+        np.sqrt(cosmo['omega_M_0']*(1 + z)**3+cosmo['omega_lambda_0'])
+
+    return(dMdt, Mz)
+
+
+User query: How do I calculate moving average?
+","```python
+def moving_average(nums, window):
+    return [sum(nums[i:i+window])/window for i in range(len(nums)-window+1)]
+```
+
+Source: custom::data/custom_functions/math_utils.py::math_utils",manual_review
+3,How do I retry API calls with backoff?,custom/data/custom_functions/api_utils.py::api_utils | custom/data/custom_functions/api_utils.py::api_utils | qubell/contrib-python-qubell-client/qubell/api/tools/__init__.py::retry | MatterMiners/cobald/cobald/daemon/runners/asyncio_runner.py::AsyncioRunner._reap_payloads,0.8337811231613159 | 0.8337811231613159 | 0.9398583173751831 | 1.113268494606018,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: custom, path: data/custom_functions/api_utils.py, func: api_utils
+import time
+
+def exponential_backoff_retry(func, retries=3):
+    for i in range(retries):
+        try:
+            return func()
+        except Exception:
+            time.sleep(2 ** i)
+    raise RuntimeError('Max retries exceeded')
+
+[2] repo: custom, path: data/custom_functions/api_utils.py, func: api_utils
+import time
+
+def exponential_backoff_retry(func, retries=3):
+    for i in range(retries):
+        try:
+            return func()
+        except Exception:
+            time.sleep(2 ** i)
+    raise RuntimeError('Max retries exceeded')
+
+[3] repo: qubell/contrib-python-qubell-client, path: qubell/api/tools/__init__.py, func: retry
+Retry ""tries"" times, with initial ""delay"", increasing delay ""delay*backoff"" each time.
+    Without exception success means when function returns valid object.
+    With exception success when no exceptions
+def retry(tries=10, delay=1, backoff=2, retry_exception=None):
+    """"""
+    Retry ""tries"" times, with initial ""delay"", increasing delay ""delay*backoff"" each time.
+    Without exception success means when function returns valid object.
+    With exception success when no exceptions
+    """"""
+    assert tries > 0, ""tries must be 1 or greater""
+    catching_mode = bool(retry_exception)
+
+    def deco_retry(f):
+        @functools.wraps(f)
+        def f_retry(*args, **kwargs):
+            mtries, mdelay = tries, delay
+
+            while mtries > 0:
+                time.sleep(mdelay)
+                mdelay *= backoff
+                try:
+                    rv = f(*args, **kwargs)
+                    if not catching_mode and rv:
+                        return rv
+                except retry_exception:
+                    pass
+                else:
+                    if catching_mode:
+                        return rv
+                mtries -= 1
+                if mtries is 0 and not catching_mode:
+                    return False
+                if mtries is 0 and catching_mode:
+                    return f(*args, **kwargs)  # extra try, to avoid except-raise syntax
+                log.debug(""{0} try, sleeping for {1} sec"".format(tries-mtries, mdelay))
+            raise Exception(""unreachable code"")
+        return f_retry
+    return deco_retry
+
+[4] repo: MatterMiners/cobald, path: cobald/daemon/runners/asyncio_runner.py, func: AsyncioRunner._reap_payloads
+Clean up all finished payloads
+async def _reap_payloads(self):
+        """"""Clean up all finished payloads""""""
+        for task in self._tasks.copy():
+            if task.done():
+                self._tasks.remove(task)
+                if task.exception() is not None:
+                    raise task.exception()
+        await asyncio.sleep(0)
+
+
+User query: How do I retry API calls with backoff?
+","You can use the `retry` function from the `qubell/contrib-python-qubell-client` repository. 
+
+Here's an example of how to use it:
+
+```python
+from functools import wraps
+from qubell.api.tools import retry
+
+@retry(tries=5, delay=1, backoff=2)
+def api_call():
+    # Your API call code here
+    pass
+```
+
+This will retry the `api_call` function up to 5 times with an initial delay of 1 second and a backoff factor of 2. If the function succeeds after 5 attempts, it will return the result. If all attempts fail, it will raise an exception.
+
+Alternatively, you can use the `exponential_backoff_retry` function from your custom repository:
+
+```python
+from custom.data.api_utils import exponential_backoff_retry
+
+def api_call():
+    # Your API call code here
+    pass
+
+api_call = exponential_backoff_retry(api_call, retries=5)
+```
+
+This will also retry the `api_call` function up to 5 times with an exponential backoff.",manual_review
+4,How do I count words in text?,custom/data/custom_functions/text_utils.py::text_utils | custom/data/custom_functions/text_utils.py::text_utils | elifesciences/elife-tools/elifetools/utils.py::text_to_title | elifesciences/elife-tools/elifetools/utils.py::tag_limit_sibling_ordinal,0.5459913611412048 | 0.5459913611412048 | 1.1892365217208862 | 1.308255672454834,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: custom, path: data/custom_functions/text_utils.py, func: text_utils
+def word_count(text):
+    return len(text.split())
+
+[2] repo: custom, path: data/custom_functions/text_utils.py, func: text_utils
+def word_count(text):
+    return len(text.split())
+
+[3] repo: elifesciences/elife-tools, path: elifetools/utils.py, func: text_to_title
+when a title is required, generate one from the value
+def text_to_title(value):
+    """"""when a title is required, generate one from the value""""""
+    title = None
+    if not value:
+        return title
+    words = value.split("" "")
+    keep_words = []
+    for word in words:
+        if word.endswith(""."") or word.endswith("":""):
+            keep_words.append(word)
+            if len(word) > 1 and ""<italic>"" not in word and ""<i>"" not in word:
+                break
+        else:
+            keep_words.append(word)
+    if len(keep_words) > 0:
+        title = "" "".join(keep_words)
+        if title.split("" "")[-1] != ""spp."":
+            title = title.rstrip("" .:"")
+    return title
+
+[4] repo: elifesciences/elife-tools, path: elifetools/utils.py, func: tag_limit_sibling_ordinal
+Count previous tags of the same name until it
+    reaches a tag name of type stop_tag, then stop counting
+def tag_limit_sibling_ordinal(tag, stop_tag_name):
+    """"""
+    Count previous tags of the same name until it
+    reaches a tag name of type stop_tag, then stop counting
+    """"""
+    tag_count = 1
+    for prev_tag in tag.previous_elements:
+        if prev_tag.name == tag.name:
+            tag_count += 1
+        if prev_tag.name == stop_tag_name:
+            break
+
+    return tag_count
+
+
+User query: How do I count words in text?
+","```python
+from custom.data.custom_functions.text_utils import word_count
+
+text = ""This is an example text.""
+word_count(text)
+```
+
+Source: custom::data/custom_functions/text_utils.py::word_count",manual_review
+5,How do I load JSON from file?,custom/data/custom_functions/file_utils.py::file_utils | custom/data/custom_functions/file_utils.py::file_utils | DataMedSci/mcpartools/mcpartools/mcengine/shieldhit.py::ShieldHit._decrypt_icru_files | canonical-ols/acceptable/acceptable/__main__.py::load_metadata,0.5704619884490967 | 0.5704619884490967 | 1.1020702123641968 | 1.1432349681854248,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: custom, path: data/custom_functions/file_utils.py, func: file_utils
+import json
+
+def read_json_file(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+[2] repo: custom, path: data/custom_functions/file_utils.py, func: file_utils
+import json
+
+def read_json_file(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+[3] repo: DataMedSci/mcpartools, path: mcpartools/mcengine/shieldhit.py, func: ShieldHit._decrypt_icru_files
+Find matching file names for given ICRU numbers
+def _decrypt_icru_files(numbers):
+        """"""Find matching file names for given ICRU numbers""""""
+        import json
+        icru_file = resource_string(__name__, os.path.join('data', 'SH12A_ICRU_table.json'))
+        ref_dict = json.loads(icru_file.decode('ascii'))
+        try:
+            return [ref_dict[e] for e in numbers]
+        except KeyError as er:
+            logger.error(""There is no ICRU file for id: {0}"".format(er))
+            raise
+
+[4] repo: canonical-ols/acceptable, path: acceptable/__main__.py, func: load_metadata
+Load JSON metadata from opened stream.
+def load_metadata(stream):
+    """"""Load JSON metadata from opened stream.""""""
+    try:
+        metadata = json.load(
+            stream, encoding='utf8', object_pairs_hook=OrderedDict)
+    except json.JSONDecodeError as e:
+        err = RuntimeError('Error parsing {}: {}'.format(stream.name, e))
+        raise_from(err, e)
+    else:
+        # convert changelog keys back to ints for sorting
+        for group in metadata:
+            if group == '$version':
+                continue
+            apis = metadata[group]['apis']
+            for api in apis.values():
+                int_changelog = OrderedDict()
+                for version, log in api.get('changelog', {}).items():
+                    int_changelog[int(version)] = log
+                api['changelog'] = int_changelog
+    finally:
+        stream.close()
+
+    return metadata
+
+
+User query: How do I load JSON from file?
+","You can load JSON from a file using the `read_json_file` function from the `file_utils` module. 
+
+```python
+from file_utils import read_json_file
+
+path_to_json_file = 'path_to_your_json_file.json'
+json_data = read_json_file(path_to_json_file)
+```
+
+This function opens the file, reads the JSON data, and returns it as a Python object. 
+
+Source: repo: custom, path: data/custom_functions/file_utils.py, func: file_utils::read_json_file",manual_review
+6,How do I decode JSON?,custom/data/custom_functions/file_utils.py::file_utils | custom/data/custom_functions/file_utils.py::file_utils | elifesciences/elife-tools/elifetools/parseJATS.py::digest_json | frostming/atoml/atoml/decoder.py::loads,0.9939095973968506 | 0.9939095973968506 | 1.0760258436203003 | 1.1641168594360352,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: custom, path: data/custom_functions/file_utils.py, func: file_utils
+import json
+
+def read_json_file(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+[2] repo: custom, path: data/custom_functions/file_utils.py, func: file_utils
+import json
+
+def read_json_file(path):
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+[3] repo: elifesciences/elife-tools, path: elifetools/parseJATS.py, func: digest_json
+digest in article json format
+def digest_json(soup):
+    """"""digest in article json format""""""
+    abstract_tags = raw_parser.abstract(soup, abstract_type=""executive-summary"")
+    abstract_json = None
+    for tag in abstract_tags:
+        abstract_json = render_abstract_json(tag)
+    return abstract_json
+
+[4] repo: frostming/atoml, path: atoml/decoder.py, func: loads
+Parse a toml string
+    An additional argument `dict_` is used to specify the output type
+def loads(content, dict_=dict):
+    """"""Parse a toml string
+    An additional argument `dict_` is used to specify the output type
+    """"""
+    if not isinstance(content, basestring):
+        raise ValueError('The first parameter needs to be a string object, ',
+                         '%r is passed' % type(content))
+    decoder = Decoder(content, dict_)
+    decoder.parse()
+    return decoder.data
+
+
+User query: How do I decode JSON?
+","You can use the `read_json_file` function from the `file_utils` module to decode a JSON file. 
+
+```python
+from file_utils import read_json_file
+
+json_data = read_json_file('path_to_your_json_file.json')
+```
+
+Alternatively, you can use the `json` module directly:
+
+```python
+import json
+
+with open('path_to_your_json_file.json', 'r', encoding='utf-8') as f:
+    json_data = json.load(f)
+```
+
+Please note that you need to replace `'path_to_your_json_file.json'` with the actual path to your JSON file. 
+
+Sources:
+- repo: custom, path: data/custom_functions/file_utils.py, func: file_utils::read_json_file 
+- repo: custom, path: data/custom_functions/file_utils.py, func: file_utils::read_json_file 
+- repo: custom, path: data/custom_functions/file_utils.py, func: file_utils::read_json_file",manual_review
+7,How do I sort a list?,canonical-ols/acceptable/acceptable/util.py::_sort_schema | canonical-ols/acceptable/acceptable/_build_doubles.py::render_value | frostming/atoml/atoml/decoder.py::contains_list | elifesciences/elife-tools/elifetools/parseJATS.py::map_equal_contributions,1.2187464237213135 | 1.2788032293319702 | 1.326987624168396 | 1.346694827079773,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: canonical-ols/acceptable, path: acceptable/util.py, func: _sort_schema
+Recursively sorts a JSON schema by dict key.
+def _sort_schema(schema):
+    """"""Recursively sorts a JSON schema by dict key.""""""
+
+    if isinstance(schema, dict):
+        for k, v in sorted(schema.items()):
+            if isinstance(v, dict):
+                yield k, OrderedDict(_sort_schema(v))
+            elif isinstance(v, list):
+                yield k, list(_sort_schema(v))
+            else:
+                yield k, v
+    elif isinstance(schema, list):
+        for v in schema:
+            if isinstance(v, dict):
+                yield OrderedDict(_sort_schema(v))
+            elif isinstance(v, list):
+                yield list(_sort_schema(v))
+            else:
+                yield v
+    else:
+        yield d
+
+[2] repo: canonical-ols/acceptable, path: acceptable/_build_doubles.py, func: render_value
+Render a value, ensuring that any nested dicts are sorted by key.
+def render_value(value):
+    """"""Render a value, ensuring that any nested dicts are sorted by key.""""""
+    if isinstance(value, list):
+        return '[' + ', '.join(render_value(v) for v in value) + ']'
+    elif isinstance(value, dict):
+        return (
+            '{' +
+            ', '.join('{k!r}: {v}'.format(
+                k=k, v=render_value(v)) for k, v in sorted(value.items())) +
+            '}')
+    else:
+        return repr(value)
+
+[3] repo: frostming/atoml, path: atoml/decoder.py, func: contains_list
+Check if longer list starts with shorter list
+def contains_list(longer, shorter):
+    """"""Check if longer list starts with shorter list""""""
+    if len(longer) <= len(shorter):
+        return False
+    for a, b in zip(shorter, longer):
+        if a != b:
+            return False
+    return True
+
+[4] repo: elifesciences/elife-tools, path: elifetools/parseJATS.py, func: map_equal_contributions
+assign numeric values to each unique equal-contrib id
+def map_equal_contributions(contributors):
+    """"""assign numeric values to each unique equal-contrib id""""""
+    equal_contribution_map = {}
+    equal_contribution_keys = []
+    for contributor in contributors:
+        if contributor.get(""references"") and ""equal-contrib"" in contributor.get(""references""):
+            for key in contributor[""references""][""equal-contrib""]:
+                if key not in equal_contribution_keys:
+                    equal_contribution_keys.append(key)
+    # Do a basic sort
+    equal_contribution_keys = sorted(equal_contribution_keys)
+    # Assign keys based on sorted values
+    for i, equal_contribution_key in enumerate(equal_contribution_keys):
+        equal_contribution_map[equal_contribution_key] = i+1
+    return equal_contribution_map
+
+
+User query: How do I sort a list?
+","You can sort a list using the `sorted()` function in Python. 
+
+Here's an example:
+
+```python
+my_list = [3, 1, 2]
+sorted_list = sorted(my_list)
+print(sorted_list)  # Output: [1, 2, 3]
+```
+
+If you want to sort a list of custom objects, you can provide a custom sorting key function to the `sorted()` function. 
+
+For example, if you have a list of dictionaries and you want to sort them by a specific key, you can use the `sorted()` function with a lambda function as the key:
+
+```python
+my_list = [{'name': 'John', 'age': 30}, {'name': 'Alice', 'age': 25}]
+sorted_list = sorted(my_list, key=lambda x: x['age'])
+print(sorted_list)  # Output: [{'name': 'Alice', 'age': 25}, {'name': 'John', 'age': 30}]
+```
+
+Note that the `sorted()` function returns a new sorted list and leaves the original list unchanged. If you want to sort the list in-place, you can use the `list.sort()` method:
+
+```python
+my_list = [3, 1, 2]
+my_list.sort()
+print(my_list)  # Output: [1, 2, 3]
+```",manual_review
+8,How do I make an HTTP request?,quantmind/agile-toolkit/agiletoolkit/api/components.py::RepoComponents.create | fredrike/pypoint/pypoint/__init__.py::PointSession._request_devices | fredrike/pypoint/pypoint/__init__.py::PointSession._register_webhook | quizl/quizler/quizler/lib.py::api_call,1.143856167793274 | 1.180293083190918 | 1.1807304620742798 | 1.214052677154541,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: quantmind/agile-toolkit, path: agiletoolkit/api/components.py, func: RepoComponents.create
+Create a new component
+def create(self, data):
+        """"""Create a new component
+        """"""
+        response = self.http.post(str(self), json=data, auth=self.auth)
+        response.raise_for_status()
+        return response.json()
+
+[2] repo: fredrike/pypoint, path: pypoint/__init__.py, func: PointSession._request_devices
+Request list of devices.
+def _request_devices(self, url, _type):
+        """"""Request list of devices.""""""
+        res = self._request(url)
+        return res.get(_type) if res else {}
+
+[3] repo: fredrike/pypoint, path: pypoint/__init__.py, func: PointSession._register_webhook
+Register webhook.
+def _register_webhook(self, webhook_url, events):
+        """"""Register webhook.""""""
+        response = self._request(
+            MINUT_WEBHOOKS_URL,
+            request_type='POST',
+            json={
+                'url': webhook_url,
+                'events': events,
+            },
+        )
+        return response
+
+[4] repo: quizl/quizler, path: quizler/lib.py, func: api_call
+Call given API end_point with API keys.
+    :param method: HTTP method (e.g. 'get', 'delete').
+    :param end_point: API endpoint (e.g. 'users/john/sets').
+    :param params: Dictionary to be sent in the query string (e.g. {'myparam': 'myval'})
+    :param client_id: Quizlet client ID as string.
+    :param access_token: Quizlet access token as string.
+    client_id and access_token are mutually exclusive but mandatory.
+def api_call(method, end_point, params=None, client_id=None, access_token=None):
+    """"""Call given API end_point with API keys.
+    :param method: HTTP method (e.g. 'get', 'delete').
+    :param end_point: API endpoint (e.g. 'users/john/sets').
+    :param params: Dictionary to be sent in the query string (e.g. {'myparam': 'myval'})
+    :param client_id: Quizlet client ID as string.
+    :param access_token: Quizlet access token as string.
+    client_id and access_token are mutually exclusive but mandatory.
+    """"""
+    if bool(client_id) == bool(access_token):
+        raise ValueError('Either client_id or access_token')
+
+    url = 'https://api.quizlet.com/2.0/{}'.format(end_point)
+
+    if not params:
+        params = {}
+    if client_id:
+        params['client_id'] = client_id
+
+    headers = {'Authorization': 'Bearer {}'.format(access_token)} if access_token else None
+
+    response = requests.request(method, url, params=params, headers=headers)
+
+    if int(response.status_code / 100) != 2:
+        error_title = ''
+        try:
+            error_title += ', ' + response.json()['error_title']
+        except ValueError:
+            pass
+        except KeyError:
+            pass
+        raise ValueError(
+            '{} returned {}{}'.format(url, response.status_code, error_title)
+        )
+
+    try:
+        return response.json()
+    except json.decoder.JSONDecodeError:
+        pass
+
+
+User query: How do I make an HTTP request?
+","You can make an HTTP request using the `requests` library in Python. 
+
+Here's an example of how to make a GET request:
+
+```python
+import requests
+
+url = 'https://api.example.com/endpoint'
+response = requests.get(url)
+```
+
+You can also make POST requests by specifying the `data` parameter:
+
+```python
+import requests
+
+url = 'https://api.example.com/endpoint'
+data = {'key': 'value'}
+response = requests.post(url, json=data)
+```
+
+In the context of the provided code, you can see how HTTP requests are made in the following functions:
+
+- `RepoComponents.create` in `agiletoolkit/api/components.py` makes a POST request to create a new component.
+- `PointSession._request_devices` in `fredrike/pypoint/__init__.py` makes a GET request to request a list of devices.
+- `PointSession._register_webhook` in `fredrike/pypoint/__init__.py` makes a POST request to register a webhook.
+- `api_call` in `quizl/quizler/lib.py` makes a GET or POST request to the Quizlet API.
+
+These functions use the `requests` library to make the HTTP requests. 
+
+Source: `requests` library documentation.",manual_review
+9,How do I parse command line arguments?,noirbizarre/django.js/djangojs/management/commands/js.py::Command.create_parser | DataMedSci/mcpartools/mcpartools/generatemc.py::main | noirbizarre/django.js/djangojs/management/commands/js.py::Command.run_from_argv | xenadevel/PyXenaManager/xenamanager/api/xena_rest.py::XenaRestWrapper.send_command_return,0.7781881093978882 | 0.8108539581298828 | 1.1179994344711304 | 1.1193757057189941,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: noirbizarre/django.js, path: djangojs/management/commands/js.py, func: Command.create_parser
+Create and return the ``OptionParser`` which will be used to
+        parse the arguments to this command.
+def create_parser(self, prog_name, subcommand):
+        """"""
+        Create and return the ``OptionParser`` which will be used to
+        parse the arguments to this command.
+
+        """"""
+        parser = argparse.ArgumentParser(prog='%s %s' % (prog_name, subcommand), description=self.help)
+
+        parser.add_argument('-v', '--verbosity', action='store', default=1, type=int, choices=range(4),
+            help='Verbosity level; 0=minimal output, 1=normal output, 2=verbose output, 3=very verbose output'),
+        parser.add_argument('--settings',
+            help='The Python path to a settings module, e.g. ""myproject.settings.main"". '
+            'If this isn\'t provided, the DJANGO_SETTINGS_MODULE environment variable will be used.'),
+        parser.add_argument('--pythonpath',
+            help='A directory to add to the Python path, e.g. ""/home/djangoprojects/myproject"".'),
+        parser.add_argument('--traceback', action='store_true', help='Print traceback on exception'),
+
+        subparsers = parser.add_subparsers(description='JavaScript command to execute')
+
+        for subparser in self.subparsers:
+            subparser(self, subparsers)
+
+        return parser
+
+[2] repo: DataMedSci/mcpartools, path: mcpartools/generatemc.py, func: main
+Main function, called from CLI script
+    :return:
+def main(args=sys.argv[1:]):
+    """"""
+    Main function, called from CLI script
+    :return:
+    """"""
+    import mcpartools
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-V', '--version',
+                        action='version',
+                        version=mcpartools.__version__)
+    parser.add_argument('-v', '--verbose',
+                        action='count',
+                        default=0,
+                        help='Give more output. Option is additive, '
+                             'and can be used up to 3 times')
+    parser.add_argument('-q', '--quiet',
+                        action='count',
+                        default=0,
+                        help='Be silent')
+    parser.add_argument('-w', '--workspace',
+                        type=str,
+                        help='workspace directory')
+    parser.add_argument('-m', '--mc_run_template',
+                        type=str,
+                        default=None,
+                        help='path to optional MC run script')
+    parser.add_argument('-s', '--scheduler_options',
+                        type=str,
+                        default=None,
+                        help='optional scheduler options: path to a file or list of options in square brackets')
+    parser.add_argument('-e', '--mc_engine_options',
+                        type=str,
+                        default=None,
+                        help='optional MC engine options: path to a file or list of options in square brackets')
+    parser.add_argument('-x', '--external_files',
+                        nargs='+',  # list may be empty
+                        type=str,
+                        help='list of external files to be copied into each job working directory')
+    parser.add_argument('-b', '--batch',
+                        type=str,
+                        default=None,
+                        choices=[b.id for b in SchedulerDiscover.supported],
+                        help='Available batch systems: {}'.format([b.id for b in SchedulerDiscover.supported]))
+    parser.add_argument('-c', '--collect',
+                        type=str,
+                        default='mv',
+                        choices=Options.collect_methods,
+                        help='Available collect methods')
+    parser.add_argument('-p', '--particle_no',
+                        dest='particle_no',
+                        metavar='particle_no',
+                        type=int,
+                        required=True,
+                        help='number of primary particles per job')
+    parser.add_argument('-j', '--jobs_no',
+                        type=int,
+                        required=True,
+                        help='number of parallel jobs')
+    parser.add_argument('input',
+                        type=str,
+                        help='path to input configuration')
+    # TODO add grouping of options
+    args = parser.parse_args(args)
+
+    if args.quiet:
+        if args.quiet == 1:
+            level = ""WARNING""
+        elif args.quiet == 2:
+            level = ""ERROR""
+        else:
+            level = ""CRITICAL""
+    elif args.verbose:
+        level = ""DEBUG""
+    else:
+        level = ""INFO""
+
+    logging.basicConfig(level=level)
+
+    opt = Options(args)
+    generator = Generator(options=opt)
+    ret_code = generator.run()
+
+    return ret_code
+
+[3] repo: noirbizarre/django.js, path: djangojs/management/commands/js.py, func: Command.run_from_argv
+Set up any environment changes requested (e.g., Python path
+        and Django settings), then run this command. If the
+        command raises a ``CommandError``, intercept it and print it sensibly
+        to stderr.
+def run_from_argv(self, argv):
+        """"""
+        Set up any environment changes requested (e.g., Python path
+        and Django settings), then run this command. If the
+        command raises a ``CommandError``, intercept it and print it sensibly
+        to stderr.
+        """"""
+        parser = self.create_parser(argv[0], argv[1])
+        args = parser.parse_args(argv[2:])
+        handle_default_options(args)
+        try:
+            self.execute(args)
+        except Exception as e:
+            # self.stderr is not guaranteed to be set here
+            try:
+                fallback_stderr = OutputWrapper(sys.stderr, self.style.ERROR)
+            except:
+                fallback_stderr = self.stdout
+            stderr = getattr(self, 'stderr', fallback_stderr)
+            if args.traceback:
+                stderr.write(traceback.format_exc())
+            else:
+                stderr.write('%s: %s' % (e.__class__.__name__, e))
+            sys.exit(1)
+
+[4] repo: xenadevel/PyXenaManager, path: xenamanager/api/xena_rest.py, func: XenaRestWrapper.send_command_return
+Send command with single line output.
+
+        :param obj: requested object.
+        :param command: command to send.
+        :param arguments: list of command arguments.
+        :return: command output.
+def send_command_return(self, obj, command, *arguments):
+        """""" Send command with single line output.
+
+        :param obj: requested object.
+        :param command: command to send.
+        :param arguments: list of command arguments.
+        :return: command output.
+        """"""
+        return self._perform_command('{}/{}'.format(self.session_url, obj.ref), command, OperReturnType.line_output,
+                                     *arguments).json()
+
+
+User query: How do I parse command line arguments?
+","You can parse command line arguments using the `argparse` module in Python. Here are a few examples:
+
+**Example 1: Simple Argument Parsing**
+```python
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', action='store_true', help='Increase verbosity')
+args = parser.parse_args()
+
+if args.verbose:
+    print('Verbose mode enabled')
+```
+**Example 2: Argument Parsing with Options**
+```python
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', action='store_true', help='Increase verbosity')
+parser.add_argument('-q', '--quiet', action='store_true', help='Decrease verbosity')
+args = parser.parse_args()
+
+if args.verbose:
+    print('Verbose mode enabled')
+elif args.quiet:
+    print('Quiet mode enabled')
+```
+**Example 3: Argument Parsing with Positional Arguments**
+```python
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('input_file', help='Input file')
+parser.add_argument('output_file', help='Output file')
+args = parser.parse_args()
+
+print('Input file:', args.input_file)
+print('Output file:', args.output_file)
+```
+**Example 4: Argument Parsing with Subparsers**
+```python
+import argparse
+
+parser = argparse.ArgumentParser()
+subparsers = parser.add_subparsers(dest='command')
+
+parser_sub1 = subparsers.add_parser('sub1')
+parser_sub1.add_argument('-v', '--verbose', action='store_true', help='Increase verbosity')
+
+parser_sub2 = subparsers.add_parser('sub2')
+parser_sub2.add_argument('-q', '--quiet', action='store_true', help='Decrease verbosity')
+
+args = parser.parse_args()
+
+if args.command == 'sub1':
+    if args.verbose:
+        print('Verbose mode enabled')
+elif args.command == 'sub2':
+    if args.quiet:
+        print('Quiet mode enabled')
+```
+These examples demonstrate how to use the `argparse` module to parse command line arguments in different ways. You can customize the parsing behavior by using various options and arguments provided by the `argparse` module.",manual_review
+10,How do I read a file line by line?,frostming/atoml/atoml/decoder.py::Converter.convert | DataMedSci/mcpartools/mcpartools/mcengine/shieldhit.py::ShieldHit._parse_geo_file | DataMedSci/mcpartools/mcpartools/mcengine/shieldhit.py::ShieldHit._parse_beam_file | xenadevel/PyXenaManager/xenamanager/xena_port.py::XenaPort.save_config,1.0961185693740845 | 1.1821057796478271 | 1.2074378728866577 | 1.2263578176498413,"System: Answer using only the provided code. Cite sources as repo/path::func_name.
+
+Context:
+[1] repo: frostming/atoml, path: atoml/decoder.py, func: Converter.convert
+Read the line content and return the converted value
+
+        :param line: the line to feed to converter
+        :param is_end: if set to True, will raise an error if
+        the line has something remaining.
+def convert(self, line=None, is_end=True):
+        """"""Read the line content and return the converted value
+
+        :param line: the line to feed to converter
+        :param is_end: if set to True, will raise an error if
+        the line has something remaining.
+        """"""
+        if line is not None:
+            self.line = line
+        if not self.line:
+            raise TomlDecodeError(self.parser.lineno,
+                                  'EOF is hit!')
+        token = None
+        self.line = self.line.lstrip()
+        for key, pattern in self.patterns:
+            m = pattern.match(self.line)
+            if m:
+                self.line = self.line[m.end():]
+                handler = getattr(self, 'convert_%s' % key)
+                token = handler(m)
+                break
+        else:
+            raise TomlDecodeError(self.parser.lineno,
+                                  'Parsing error: %r' % self.line)
+        if is_end and not BLANK_RE.match(self.line):
+            raise TomlDecodeError(self.parser.lineno,
+                                  'Something is remained: %r' % self.line)
+        return token
+
+[2] repo: DataMedSci/mcpartools, path: mcpartools/mcengine/shieldhit.py, func: ShieldHit._parse_geo_file
+Scan SH12A GEO file for references to external files (like voxelised geometry) and return them
+def _parse_geo_file(self, file_path, run_input_dir):
+        """"""Scan SH12A GEO file for references to external files (like voxelised geometry) and return them""""""
+        external_files = []
+        paths_to_replace = []
+        with open(file_path, 'r') as geo_f:
+            for line in geo_f.readlines():
+                split_line = line.split()
+                if len(split_line) > 0 and not line.startswith(""*""):
+                    base_path = os.path.join(self.input_path, split_line[0])
+                    if os.path.isfile(base_path + '.hed'):
+                        logger.debug(""Found ctx + hed files: {0}"".format(base_path))
+                        external_files.append(base_path + '.hed')
+                        # try to find ctx file
+                        if os.path.isfile(base_path + '.ctx'):
+                            external_files.append(base_path + '.ctx')
+                        elif os.path.isfile(base_path + '.ctx.gz'):
+                            external_files.append(base_path + '.ctx.gz')
+                        # replace path to match symlink location
+                        paths_to_replace.append(split_line[0])
+        if paths_to_replace:
+            run_dir_config_file = os.path.join(run_input_dir, os.path.split(file_path)[-1])
+            logger.debug(""Calling rewrite_paths method on file: {0}"".format(run_dir_config_file))
+            self._rewrite_paths_in_file(run_dir_config_file, paths_to_replace)
+        return external_files
+
+[3] repo: DataMedSci/mcpartools, path: mcpartools/mcengine/shieldhit.py, func: ShieldHit._parse_beam_file
+Scan SH12A BEAM file for references to external files and return them
+def _parse_beam_file(self, file_path, run_input_dir):
+        """"""Scan SH12A BEAM file for references to external files and return them""""""
+        external_files = []
+        paths_to_replace = []
+        with open(file_path, 'r') as beam_f:
+            for line in beam_f.readlines():
+                split_line = line.split()
+                # line length checking to prevent IndexError
+                if len(split_line) > 2 and split_line[0] == ""USEBMOD"":
+                    logger.debug(""Found reference to external file in BEAM file: {0} {1}"".format(
+                                 split_line[0], split_line[2]))
+                    external_files.append(split_line[2])
+                    paths_to_replace.append(split_line[2])
+                elif len(split_line) > 1 and split_line[0] == ""USECBEAM"":
+                    logger.debug(""Found reference to external file in BEAM file: {0} {1}"".format(
+                                 split_line[0], split_line[1]))
+                    external_files.append(split_line[1])
+                    paths_to_replace.append(split_line[1])
+        if paths_to_replace:
+            run_dir_config_file = os.path.join(run_input_dir, os.path.split(file_path)[-1])
+            logger.debug(""Calling rewrite_paths method on file: {0}"".format(run_dir_config_file))
+            self._rewrite_paths_in_file(run_dir_config_file, paths_to_replace)
+        return external_files
+
+[4] repo: xenadevel/PyXenaManager, path: xenamanager/xena_port.py, func: XenaPort.save_config
+Save configuration file to xpc file.
+
+        :param config_file_name: full path to the configuration file.
+def save_config(self, config_file_name):
+        """""" Save configuration file to xpc file.
+
+        :param config_file_name: full path to the configuration file.
+        """"""
+
+        with open(config_file_name, 'w+') as f:
+            f.write('P_RESET\n')
+            for line in self.send_command_return_multilines('p_fullconfig', '?'):
+                f.write(line.split(' ', 1)[1].lstrip())
+
+
+User query: How do I read a file line by line?
+","[2] repo: DataMedSci/mcpartools, path: mcpartools/mcengine/shieldhit.py, func: ShieldHit._parse_geo_file
+```python
+with open(file_path, 'r') as geo_f:
+    for line in geo_f.readlines():
+        # process each line
+```
+
+[2] repo: DataMedSci/mcpartools, path: mcpartools/mcengine/shieldhit.py, func: ShieldHit._parse_beam_file
+```python
+with open(file_path, 'r') as beam_f:
+    for line in beam_f.readlines():
+        # process each line
+```
+
+[4] repo: xenadevel/PyXenaManager, path: xenamanager/xena_port.py, func: XenaPort.save_config
+```python
+with open(config_file_name, 'w+') as f:
+    for line in self.send_command_return_multilines('p_fullconfig', '?'):
+        # process each line
+```
+
+Alternatively, you can use a `for` loop with the `readlines()` method to read the file line by line:
+
+```python
+with open(file_path, 'r') as f:
+    lines = f.readlines()
+    for line in lines:
+        # process each line
+```
+
+However, this approach is less efficient than using a `for` loop directly with the file object, as it loads the entire file into memory at once.",manual_review

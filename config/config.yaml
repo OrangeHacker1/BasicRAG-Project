@@ -1,0 +1,17 @@
+embedding:
+  model: sentence-transformers/all-MiniLM-L6-v2
+
+database:
+  path: ./chroma_code
+  collection_name: csn_python
+
+retrieval:
+  top_k: 4
+
+dataset:
+  starter_size: 1000
+
+generation:
+  temperature: 0.2
+  max_tokens: 512
+  retries: 3
