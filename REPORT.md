@@ -1,3 +1,4 @@
+TRACK: B
 
 # Methodology
 For this assignment, the code is designed to create a local RAG for a callable LLM model. In order to reproduce this code, you will need to store the following variables within a '.env' file within the project: GENERATOR_BASE_URL; GENERATOR_MODEL; GENERATOR_API_KEY.
@@ -13,3 +14,13 @@ For my code, I used the following LLM:
     GENERATOR_API_KEY=<REDACTED>
 
 REDULTS:
+
+Part 1 RESULTS:
+
+PART 2 RESULTS:
+
+
+# REFLECTION
+Upon completing this project, I found that the RAG created was capable of handiling simple tasks. There were no extremely complicated or niche quesstions askeed for this experiment. The model was able to answer questions while siting the RAG, thus ensuring that the python methods are in fact grounded and would work. The only issue was when a custom method was prioritized over a better already existing method.    
+During part 2, I found that the custom method would end up taking the top spot, even when it doesn't acctually complete the task. This wasn't an issue for unrelated tasks though. There seemed to be an elivated priority for the newest items added to this RAG.    
+If I was given more time to play around with this project, I would have liked to further test more advanced questions. Perhaps I could add comments to the methods to see how that would impact the project. Asking more questions with similar topics but different essense could also help see how accurate the code is. It would also be interesting to explore different models to see the impact.    
