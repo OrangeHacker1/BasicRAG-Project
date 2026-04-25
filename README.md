@@ -1,5 +1,6 @@
 # BasicRAG-Project
-A basic test to construct a local RAG for an LLM.
+A basic test to construct a local RAG for an LLM.   
+This project is based on Track B of the assignment.   
 
 # Basic Usage
 Install required dependencies:    
