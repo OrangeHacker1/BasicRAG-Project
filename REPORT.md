@@ -33,7 +33,16 @@ Part 1 RESULTS:
 PART 2 RESULTS:     
 | Query ID | Query | Type | Top 4 | Answer Given | Judgement |
 |----------|-------|------|-------|--------------|-----------|
-
+| 1 | 'How do I validate an email address?' | Targeted | [1] repo: custom, path: data/custom_functions/validation.py, func: validation; [2] repo: alixedi/palal, path: palal/survey.py, func: Survey.is_answer_valid; [3] repo: beregond/jsonmodels, path: jsonmodels/models.py, func: Base.validate; [4] repo: eugene-eeo/mailthon, path: mailthon/helpers.py, func: stringify_address | ```python import re def is_valid_email(email): return bool(re.match(r'^[^@]+@[^@]+\.[^@]+$', email)) ``` Source: custom::data/custom_functions/validation.py::validation",manual_review | Yes |
+| 2 | 'How do I calculate moving average?' | Targeted |
+| 3| 'How do I retry API calls with backoff?' | Targeted |
+| 4| 'How do I count words in text?' | Targeted |
+| 5 | 'How do I load JSON from file?' | Targeted |
+| 6 | 'How do I read a JSON file?' | Cros-corpus |
+| 7 | 'How do I sort a list?' | Cross-corpus | 
+| 8 | 'How do I run a factorial?' | Cross-corpus |
+| 9 | 'How do I parse command line arguments?' | Cross-corpus |
+| 10 | 'How do I retry failed operations?' | Cross-corpus |
 
 # REFLECTION
 Upon completing this project, I found that the RAG created was capable of handiling simple tasks. The questions did not always use the methods for the top K. However, the LLM would grab methods within the top K. This can be debated about whether it is grounded since the methods being used are listed within the top K. However, not all of the responses were properly citing there sources. If the method is show within the top K and cited, it will be considered grounded. I will also mark grounded answers that show some level of logical flow. However, the methods will need to be shown more than once. This issue is likely due to the fact that better methods are shown, and recognized by LLM, but the RAG does not have the method stored. Thus is chooses to use the submethod, but is unable to provide a propper documentation, as it is not stored in the RAG.          
